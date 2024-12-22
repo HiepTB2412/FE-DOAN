@@ -226,7 +226,6 @@ const ToogleUser = (props: Props) => {
             <Form.Item
               label="Note"
               name="note"
-              rules={[{ required: true, message: "Please enter Note" }]}
             >
               <Input.TextArea
                 placeholder="Type a note"

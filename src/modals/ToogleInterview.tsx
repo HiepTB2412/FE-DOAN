@@ -300,7 +300,6 @@ const ToogleInterview = (props: Props) => {
             <Form.Item
               label="Note"
               name="notes"
-              rules={[{ required: true, message: "Please enter Note" }]}
             >
               <Input.TextArea
                 placeholder="Type a note"

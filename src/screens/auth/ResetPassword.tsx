@@ -18,7 +18,7 @@ const ResetPassword = () => {
     const api = "/auth/reset-password";
     try {
       console.log(values);
-      const res: any = await handleAPI(api, values, "post");
+      const res: any = await handleAPI(api, values, "put");
       toast.success(res.message);
       navigate("/");
       form.resetFields();
@@ -115,7 +115,7 @@ const ResetPassword = () => {
               },
             ]}
           >
-            <Input.OTP length={8} />
+            <Input.OTP length={6} />
           </Form.Item>
         </Form>
 

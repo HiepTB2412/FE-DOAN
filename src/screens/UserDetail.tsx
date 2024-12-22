@@ -186,7 +186,6 @@ const UserDetail = (props: Props) => {
               <Form.Item
                 label="Note"
                 name="note"
-                rules={[{ required: true, message: "Please enter Note" }]}
               >
                 <Input.TextArea
                   disabled={true}

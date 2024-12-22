@@ -112,36 +112,66 @@ const ToogleCandidate = (props: Props) => {
     const file: File | undefined = e.target.files?.[0];
     const reader: FileReader = new FileReader();
     setIsLoading(true);
+
     if (file) {
       reader.readAsDataURL(file);
       reader.onloadend = async () => {
         if (typeof reader.result === "string") {
           setCv(file);
         }
+
         const formData = new FormData();
         formData.append("file", file);
-        const response = await axios.post(
-          "https://api.affinda.com/v2/resumes",
-          formData,
-          {
-            headers: {
-              Authorization:
-                "Bearer aff_a34e2df383b149a2e0939d0bdb012e818bd6beb4",
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        const formattedData = {
-          fullName: response.data.data.name?.raw || "",
-          email: response.data.data.emails?.[0] || "",
-          phoneNumber: formatPhoneNumber(response.data.data.phoneNumbers?.[0]),
-          address: response.data.data.location?.formatted || "",
-        };
-        form.setFieldsValue(formattedData);
+
+        try {
+          const response = await axios.post(
+            "https://api.affinda.com/v2/resumes",
+            formData,
+            {
+              headers: {
+                Authorization:
+                  "Bearer aff_a34e2df383b149a2e0939d0bdb012e818bd6beb4",
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          const formattedData = {
+            fullName: response.data.data.name?.raw || "",
+            email: response.data.data.emails?.[0] || "",
+            phoneNumber: formatPhoneNumber(response.data.data.phoneNumbers?.[0]),
+            address: response.data.data.location?.formatted || "",
+          };
+
+          // Lọc danh sách kỹ năng từ API
+          const detectedSkills = response.data.data.skills?.map((skill: any) =>
+            skill.name?.toUpperCase()
+          );
+
+          // Lọc kỹ năng có trong optionsSkills
+          const selectedSkills = optionsSkills
+            .filter((option) =>
+              detectedSkills?.some((detectedSkill: string) =>
+                detectedSkill.includes(option.value)
+              )
+            )
+            .map((option) => option.value); // Chỉ lấy giá trị của kỹ năng
+
+          // Cập nhật form với các kỹ năng đã lọc
+          form.setFieldsValue({
+            ...formattedData,
+            skills: selectedSkills, // Tự động tích chọn các kỹ năng
+          });
+        } catch (error) {
+          console.error("Error uploading CV:", error);
+        }
       };
     }
+
     setIsLoading(false);
   };
+
+
 
   const addCandidate = async (values: any) => {
     const api = `/candidates/create`;
@@ -204,7 +234,7 @@ const ToogleCandidate = (props: Props) => {
       if (error.response) {
         message.error(
           error.response.data.message ||
-            "An error occurred while adding the candidate."
+          "An error occurred while adding the candidate."
         );
       } else {
         message.error("Failed to add candidate. Please try again.");
@@ -246,7 +276,7 @@ const ToogleCandidate = (props: Props) => {
       if (error.response) {
         message.error(
           error.response.data.message ||
-            "An error occurred while adding the candidate."
+          "An error occurred while adding the candidate."
         );
       } else {
         message.error("Failed to add candidate. Please try again.");
@@ -489,10 +519,13 @@ const ToogleCandidate = (props: Props) => {
               <Select
                 disabled={!(cv || candidate)}
                 mode="multiple"
+                style={{ width: "100%" }}
+                placeholder="Select skills"
                 options={optionsSkills}
               />
             </Form.Item>
           </Col>
+
 
           {candidate ? (
             <div></div>
@@ -518,7 +551,6 @@ const ToogleCandidate = (props: Props) => {
             <Form.Item
               label="Note"
               name="note"
-              rules={[{ required: true, message: "Please enter note" }]}
             >
               <Input
                 disabled={!(cv || candidate)}
