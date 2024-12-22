@@ -3,7 +3,7 @@ import queryString from "query-string";
 import { localDataNames } from "../constants/appInfos";
 import { syncLocal } from "../redux/reducers/authReducer";
 
-export const baseURL = `https://imsbackend-production.up.railway.app/api/v1`;
+export const baseURL = `https://imsbackend-production-3781.up.railway.app/api/v1`;
 
 const axiosClient = axios.create({
   baseURL: baseURL,
@@ -41,6 +41,10 @@ axiosClient.interceptors.request.use(async (config: any) => {
     ...config.headers,
   };
 
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   return { ...config, data: config.data ?? null };
 });
 
@@ -58,7 +62,7 @@ axiosClient.interceptors.response.use(
       try {
         const refreshToken = getrefreshToken();
         const result = await axios.post(
-          `https://imsbackend-production.up.railway.app/api/v1/auth/refresh`,
+          `https://imsbackend-production-3781.up.railway.app/api/v1/auth/refresh`,
           {
             refreshToken: refreshToken,
           }

@@ -2,7 +2,6 @@ import { Button, Input, Select, Space, Tooltip, Typography } from "antd";
 import Table, { ColumnProps } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-
 import { toast } from "react-toastify";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
@@ -11,7 +10,12 @@ import ToogleUser from "../modals/ToogleUser";
 
 const { Title } = Typography;
 
-const User = () => {
+interface Props {
+  onUpdateUserLogin: () => void;
+}
+
+const User = (props: Props) => {
+  const { onUpdateUserLogin } = props;
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +99,7 @@ const User = () => {
   return (
     <div>
       <Table
-        style={{ width: "90%", margin: "auto", paddingTop: "50px" }}
+        style={{ width: "90%", margin: "auto" }}
         loading={isLoading}
         dataSource={users}
         columns={columns}
@@ -144,7 +148,10 @@ const User = () => {
         onAddNew={(val) => {
           setUsers([...users, val]);
         }}
-        onUpdate={() => getUsers()}
+        onUpdate={() => {
+          getUsers();
+          onUpdateUserLogin();
+        }}
         user={updateUserSelected}
       />
     </div>

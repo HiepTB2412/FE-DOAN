@@ -6,10 +6,10 @@ import AuthRouter from "./AuthRouter";
 import MainRouter from "./MainRouter";
 import { useEffect, useState } from "react";
 import { localDataNames } from "../constants/appInfos";
-import { Spin } from "antd";
+import { message, Spin } from "antd";
 
 const Routers = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const auth: AuthState = useSelector(authSeletor);
   const dispatch = useDispatch();
@@ -19,8 +19,15 @@ const Routers = () => {
   }, []);
 
   const getData = async () => {
-    const res = localStorage.getItem(localDataNames.authData);
-    res && dispatch(addAuth(JSON.parse(res)));
+    try {
+      const res = localStorage.getItem(localDataNames.authData);
+      res && dispatch(addAuth(JSON.parse(res)));
+    } catch (error: any) {
+      message.error(error);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return isLoading ? (

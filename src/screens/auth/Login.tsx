@@ -37,7 +37,7 @@ const Login = () => {
     <>
       <Card
         style={{
-          width: "50%",
+          width: "60%",
         }}
       >
         <div className="text-center">

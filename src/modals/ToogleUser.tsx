@@ -30,6 +30,15 @@ const optionsStatus = [
   { value: "INACTIVE", label: <span>INACTIVE</span> },
 ];
 
+const optionsDepartment = [
+  { value: "IT", label: <span>IT</span> },
+  { value: "HR", label: <span>HR</span> },
+  { value: "FINANCE", label: <span>FINANCE</span> },
+  { value: "COMMUNICATION", label: <span>COMMUNICATION</span> },
+  { value: "MARKETING", label: <span>MARKETING</span> },
+  { value: "ACCOUNTING", label: <span>ACCOUNTING</span> },
+];
+
 const ToogleUser = (props: Props) => {
   const { visible, onAddNew, onClose, onUpdate, user } = props;
 
@@ -204,12 +213,11 @@ const ToogleUser = (props: Props) => {
             <Form.Item
               label="Department"
               name="department"
-              rules={[{ required: true, message: "Please enter Department" }]}
+              rules={[{ required: true, message: "Please select Department" }]}
             >
-              <Input
-                placeholder="Type a department"
-                allowClear
-                style={{ width: "100%" }}
+              <Select
+                disabled={user ? true : false}
+                options={optionsDepartment}
               />
             </Form.Item>
           </Col>

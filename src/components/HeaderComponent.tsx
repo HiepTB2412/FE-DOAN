@@ -2,16 +2,18 @@ import { Avatar, Dropdown, MenuProps, Space, Typography } from "antd";
 import { useDispatch } from "react-redux";
 import { removeAuth } from "../redux/reducers/authReducer";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { UserModel } from "../models/UserModel";
-import handleAPI from "../apis/handleAPI";
 
 const { Text } = Typography;
 
-const HeaderComponent = () => {
+interface Props {
+  user?: UserModel;
+}
+
+const HeaderComponent = (props: Props) => {
+  const { user } = props;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserModel>();
 
   const handleLogout = () => {
     dispatch(removeAuth({}));
@@ -36,29 +38,13 @@ const HeaderComponent = () => {
     },
   ];
 
-  useEffect(() => {
-    getUser();
-  }, []);
-
-  const getUser = async () => {
-    const api = "/users/info";
-    try {
-      const res: any = await handleAPI(api);
-      if (res.data) {
-        setUser(res.data);
-      }
-    } catch (error: any) {
-      console.log(error.message);
-    }
-  };
-
   return (
     <div className="bg-white p-2">
       <div className="col text-end">
         <Space>
           <div className="row">
             <Text>{user?.fullName}</Text>
-            <Text>Department {user?.department}</Text>
+            <Text>Department: {user?.department}</Text>
           </div>
           <Dropdown menu={{ items }}>
             <Avatar
