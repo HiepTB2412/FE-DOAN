@@ -14,12 +14,27 @@ interface Props {
   onUpdateUserLogin: () => void;
 }
 
+const optionsDepartment = [
+  { value: "", label: <span>All</span> },
+  { value: "IT", label: <span>IT</span> },
+  { value: "HR", label: <span>HR</span> },
+  { value: "FINANCE", label: <span>FINANCE</span> },
+  { value: "COMMUNICATION", label: <span>COMMUNICATION</span> },
+  { value: "MARKETING", label: <span>MARKETING</span> },
+  { value: "ACCOUNTING", label: <span>ACCOUNTING</span> },
+];
+
 const User = (props: Props) => {
   const { onUpdateUserLogin } = props;
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [users, setUsers] = useState<UserModel[]>([]);
+  const [allUsers, setAllUsers] = useState<UserModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [updateUserSelected, setUpdateUserSelected] = useState<UserModel>();
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
+    undefined
+  );
 
   const columns: ColumnProps<UserModel>[] = [
     {
@@ -65,14 +80,35 @@ const User = (props: Props) => {
     },
   ];
 
-  const options = [{ key: "HR", value: "HR", label: <span>HR</span> }];
-
   useEffect(() => {
     getUsers();
   }, []);
 
+  const filterInterviews = (search?: string, department?: string) => {
+    let filteredData = [...allUsers];
+
+    if (search) {
+      filteredData = filteredData.filter((item: any) =>
+        item.fullName.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (department) {
+      filteredData = filteredData.filter(
+        (item: any) => item.department === department
+      );
+    }
+
+    setUsers(filteredData);
+  };
+  const handleChangeSearch = (value: string) => {
+    setSearchText(value);
+    filterInterviews(value, selectedStatus);
+  };
+
   const handleChangeSelect = (value: string) => {
-    console.log(`selected ${value}`);
+    setSelectedStatus(value);
+    filterInterviews(searchText, value);
   };
 
   const getUsers = async () => {
@@ -88,6 +124,7 @@ const User = (props: Props) => {
           key: user.id, // Giả sử mỗi user có thuộc tính id duy nhất
         }));
         setUsers(usersWithKey);
+        setAllUsers(usersWithKey);
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -106,20 +143,21 @@ const User = (props: Props) => {
         title={() => (
           <div className="row">
             <div className="col">
-              <Title level={5}>User</Title>
+              <Title level={5}>Offer</Title>
             </div>
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search..."
+                  placeholder="Search Name..."
                   style={{ borderRadius: 100 }}
                   size="middle"
+                  onChange={(e) => handleChangeSearch(e.target.value)}
                 />
                 <Select
-                  defaultValue="Role"
+                  defaultValue="Department"
                   style={{ width: 180 }}
                   onChange={handleChangeSelect}
-                  options={options}
+                  options={optionsDepartment}
                 />
                 <Tooltip title="search">
                   <Button shape="circle" icon={<FaSearch />} />
