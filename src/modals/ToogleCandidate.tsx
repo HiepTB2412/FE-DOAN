@@ -13,6 +13,8 @@ import handleAPI from "../apis/handleAPI";
 import { UserModel } from "../models/UserModel";
 import axios from "axios";
 import dayjs from "dayjs";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 interface Props {
   visible: boolean;
@@ -67,6 +69,7 @@ const formatPhoneNumber = (phoneNumber: any) => {
 };
 
 const ToogleCandidate = (props: Props) => {
+  const auth: AuthState = useSelector(authSeletor);
   const { visible, onAddNew, onClose, onUpdate, candidate } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [recruiter, setRecruiter] = useState<UserModel[]>([]);
@@ -139,7 +142,9 @@ const ToogleCandidate = (props: Props) => {
           const formattedData = {
             fullName: response.data.data.name?.raw || "",
             email: response.data.data.emails?.[0] || "",
-            phoneNumber: formatPhoneNumber(response.data.data.phoneNumbers?.[0]),
+            phoneNumber: formatPhoneNumber(
+              response.data.data.phoneNumbers?.[0]
+            ),
             address: response.data.data.location?.formatted || "",
           };
 
@@ -170,8 +175,6 @@ const ToogleCandidate = (props: Props) => {
 
     setIsLoading(false);
   };
-
-
 
   const addCandidate = async (values: any) => {
     const api = `/candidates/create`;
@@ -234,7 +237,7 @@ const ToogleCandidate = (props: Props) => {
       if (error.response) {
         message.error(
           error.response.data.message ||
-          "An error occurred while adding the candidate."
+            "An error occurred while adding the candidate."
         );
       } else {
         message.error("Failed to add candidate. Please try again.");
@@ -276,7 +279,7 @@ const ToogleCandidate = (props: Props) => {
       if (error.response) {
         message.error(
           error.response.data.message ||
-          "An error occurred while adding the candidate."
+            "An error occurred while adding the candidate."
         );
       } else {
         message.error("Failed to add candidate. Please try again.");
@@ -292,7 +295,7 @@ const ToogleCandidate = (props: Props) => {
     onClose();
   };
 
-  console.log("candidate", candidate);
+  // console.log("candidate", candidate);
 
   useEffect(() => {
     if (candidate) {
@@ -328,7 +331,10 @@ const ToogleCandidate = (props: Props) => {
       open={visible}
       onCancel={handleClose}
       onOk={() => form.submit()}
-      okButtonProps={{ loading: isLoading }}
+      okButtonProps={{
+        loading: isLoading,
+        disabled: auth.role === 3, // Disable button if auth.role === 3
+      }}
       title={candidate ? "Update Candidate" : "Add Candidate"}
       okText={candidate ? "Update" : "Add Candidate"}
       cancelText="Cancel"
@@ -378,12 +384,22 @@ const ToogleCandidate = (props: Props) => {
             <Form.Item
               label="Email"
               name="email"
-              rules={[{ required: true, message: "Please enter Email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email!",
+                },
+                {
+                  type: "email",
+                  message: "The input is not a valid email address!",
+                },
+              ]}
             >
               <Input
                 disabled={!(cv || candidate)}
                 placeholder="Type an email"
                 allowClear
+                type="email"
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -526,7 +542,6 @@ const ToogleCandidate = (props: Props) => {
             </Form.Item>
           </Col>
 
-
           {candidate ? (
             <div></div>
           ) : (
@@ -548,10 +563,7 @@ const ToogleCandidate = (props: Props) => {
           )}
 
           <Col span={12}>
-            <Form.Item
-              label="Note"
-              name="note"
-            >
+            <Form.Item label="Note" name="note">
               <Input
                 disabled={!(cv || candidate)}
                 placeholder="Type a note"

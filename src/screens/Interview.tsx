@@ -15,10 +15,13 @@ import { FaSearch } from "react-icons/fa";
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import ToogleInterview from "../modals/ToogleInterview";
 import handleAPI from "../apis/handleAPI";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
 const Interview = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [updateInterviewSelected, setUpdateInterviewSelected] = useState<any>();
@@ -143,7 +146,7 @@ const Interview = () => {
               style={{ marginRight: 8, color: "#1890ff", cursor: "pointer" }}
             />
           </Tooltip>
-          {item.status === "INVITED" && (
+          {item.status === "INVITED" && auth.role !== 4 && (
             <Popconfirm
               title={`You are canceling: ${item.title}`}
               onConfirm={() => handleCancel(item)}

@@ -4,11 +4,13 @@ import { localDataNames } from "../../constants/appInfos";
 export interface AuthState {
   accessToken: string;
   refreshToken: string;
+  role: number;
 }
 
 const initialState = {
   accessToken: null,
   refreshToken: null,
+  role: null,
 };
 
 const authSlice = createSlice({

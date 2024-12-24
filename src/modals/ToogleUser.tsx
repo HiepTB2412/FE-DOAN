@@ -1,9 +1,19 @@
-import { DatePicker, Form, Input, Modal, Row, Col, Select } from "antd";
+import {
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Col,
+  Select,
+  message,
+} from "antd";
 import { useEffect, useState } from "react";
 import { UserModel } from "../models/UserModel";
 import dayjs from "dayjs";
 import handleAPI from "../apis/handleAPI";
-import { toast } from "react-toastify";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 interface Props {
   visible: boolean;
@@ -41,7 +51,7 @@ const optionsDepartment = [
 
 const ToogleUser = (props: Props) => {
   const { visible, onAddNew, onClose, onUpdate, user } = props;
-
+  const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [form] = Form.useForm();
 
@@ -75,7 +85,7 @@ const ToogleUser = (props: Props) => {
 
     try {
       const res: any = await handleAPI(api, data, user ? "patch" : "post");
-      toast.success(res.message);
+      message.success(res.message);
       !user && onAddNew(res.data);
       handleClose();
       user && onUpdate();
@@ -91,14 +101,19 @@ const ToogleUser = (props: Props) => {
     onClose();
   };
 
+  // console.log("auth", auth.role);
+
   return (
     <Modal
       closable={!isLoading}
       open={visible}
       onClose={handleClose}
       onCancel={handleClose}
-      onOk={() => form.submit()}
-      okButtonProps={{ loading: isLoading }}
+      onOk={auth.role === 2 || auth.role === 4 ? () => {} : () => form.submit()} // Ngừng xử lý nếu role là 2 hoặc 4
+      okButtonProps={{
+        loading: isLoading,
+        disabled: auth.role === 2 || auth.role === 4, // Disable OK button for role 2 or 4
+      }}
       title={user ? "Update" : "Add User"}
       okText={user ? "Update" : "Add User"}
       cancelText="Cancel"
@@ -131,11 +146,22 @@ const ToogleUser = (props: Props) => {
             <Form.Item
               label="Email"
               name="email"
-              rules={[{ required: true, message: "Please enter Email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email!",
+                },
+                {
+                  type: "email",
+                  message: "The input is not a valid email address!",
+                },
+              ]}
             >
               <Input
+                disabled={user ? true : false}
                 placeholder="Type an email"
                 allowClear
+                type="email"
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -223,10 +249,7 @@ const ToogleUser = (props: Props) => {
           </Col>
 
           <Col span={12}>
-            <Form.Item
-              label="Note"
-              name="note"
-            >
+            <Form.Item label="Note" name="note">
               <Input.TextArea
                 placeholder="Type a note"
                 allowClear

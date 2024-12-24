@@ -1,8 +1,7 @@
 import { Affix, Layout, Spin } from "antd";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import SiderComponent from "../components/SiderComponent";
 import HeaderComponent from "../components/HeaderComponent";
-import HomeScreen from "../screens/HomeScreen";
 import User from "../screens/User";
 import UserDetail from "../screens/UserDetail";
 import { useEffect, useState } from "react";
@@ -13,10 +12,14 @@ import Job from "../screens/Job";
 import JobDetail from "../screens/JobDetail";
 import Candidate from "../screens/Candidate";
 import Offer from "../screens/Offer";
+import FooterComponent from "../components/FooterComponent";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
-const { Content, Footer } = Layout;
+const { Content } = Layout;
 
 const MainRouter = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [user, setUser] = useState<UserModel>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,9 +49,7 @@ const MainRouter = () => {
   return (
     <BrowserRouter>
       <Layout>
-        <Affix offsetTop={0}>
-          <SiderComponent />
-        </Affix>
+        <SiderComponent />
         <Layout
           style={{
             backgroundColor: "white !important",
@@ -59,22 +60,48 @@ const MainRouter = () => {
           </Affix>
           <Content className="pt-3 container-fluid">
             <Routes>
-              <Route path="/" element={<HomeScreen />} />
-              <Route path="/interview" element={<Interview />} />
               <Route path="/job" element={<Job />} />
               <Route path="/candidate" element={<Candidate />} />
-              <Route path="/offer" element={<Offer />} />
+              <Route path="/job/:id" element={<JobDetail />} />
+
+              {/* Restrict access for role 3 */}
+              <Route
+                path="/interview"
+                element={
+                  auth.role === 3 ? (
+                    <Navigate to="/user/detail" replace />
+                  ) : (
+                    <Interview />
+                  )
+                }
+              />
+              <Route
+                path="/offer"
+                element={
+                  auth.role === 3 ? (
+                    <Navigate to="/user/detail" replace />
+                  ) : (
+                    <Offer />
+                  )
+                }
+              />
               <Route
                 path="/user"
-                element={<User onUpdateUserLogin={() => getUser()} />}
+                element={
+                  auth.role === 3 ? (
+                    <Navigate to="/user/detail" replace />
+                  ) : (
+                    <User onUpdateUserLogin={() => getUser()} />
+                  )
+                }
               />
               <Route path="/user/detail" element={<UserDetail user={user} />} />
-              <Route path="/job/:id" element={<JobDetail />} />
             </Routes>
           </Content>
-          <Footer className="bg-white" />
         </Layout>
       </Layout>
+
+      <FooterComponent />
     </BrowserRouter>
   );
 };

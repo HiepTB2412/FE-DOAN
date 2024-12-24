@@ -1,7 +1,6 @@
 import { Layout, Menu, MenuProps, Typography } from "antd";
 import { Link } from "react-router-dom";
 import { colors } from "../constants/colors";
-import { FiHome } from "react-icons/fi";
 import { PiUsersThree } from "react-icons/pi";
 import { IoBagRemoveOutline, IoNewspaperOutline } from "react-icons/io5";
 import { RiWechatLine } from "react-icons/ri";
@@ -14,11 +13,6 @@ type MenuItem = Required<MenuProps>["items"][number];
 
 const SiderComponent = () => {
   const items: MenuItem[] = [
-    {
-      key: "/",
-      label: <Link to="/">Home</Link>,
-      icon: <FiHome size={20} />,
-    },
     {
       key: "/candidate",
       label: <Link to="/candidate">Candidate</Link>,

@@ -7,6 +7,8 @@ import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
 import { UserModel } from "../models/UserModel";
 import ToogleUser from "../modals/ToogleUser";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -26,6 +28,7 @@ const optionsDepartment = [
 
 const User = (props: Props) => {
   const { onUpdateUserLogin } = props;
+  const auth: AuthState = useSelector(authSeletor);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [allUsers, setAllUsers] = useState<UserModel[]>([]);
@@ -166,12 +169,14 @@ const User = (props: Props) => {
             </div>
             <div className="col text-end">
               <Space>
-                <Button
-                  type="primary"
-                  onClick={() => setIsVisibleModalAddNew(true)}
-                >
-                  Add New
-                </Button>
+                {auth.role !== 2 && auth.role !== 4 && (
+                  <Button
+                    type="primary"
+                    onClick={() => setIsVisibleModalAddNew(true)}
+                  >
+                    Add New
+                  </Button>
+                )}
               </Space>
             </div>
           </div>
