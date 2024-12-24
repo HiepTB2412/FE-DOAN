@@ -20,6 +20,8 @@ import moment from "moment";
 import { ColumnProps } from "antd/es/table";
 import { EditOutlined } from "@ant-design/icons";
 import ToogleAddInterview from "../modals/ToogleAddInterview";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
@@ -58,6 +60,7 @@ const options = [
 ];
 
 const JobDetail = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [jobDetail, setJobDetail] = useState<any>({});
@@ -387,9 +390,11 @@ const JobDetail = () => {
               marginTop: "10px",
             }}
           >
-            <Button onClick={() => form.submit()} type="primary">
-              Update
-            </Button>
+            {auth.role !== 3 && (
+              <Button onClick={() => form.submit()} type="primary">
+                Update
+              </Button>
+            )}
           </div>
         </Card>
       </div>

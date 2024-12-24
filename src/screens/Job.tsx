@@ -15,6 +15,8 @@ import { ColumnProps } from "antd/es/table";
 import handleAPI from "../apis/handleAPI";
 import ToogleJob from "../modals/ToogleJob";
 import { Link } from "react-router-dom";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -26,6 +28,7 @@ const options = [
 ];
 
 const Job = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [jobs, setJobs] = useState<any[]>([]);
@@ -185,12 +188,14 @@ const Job = () => {
             </div>
             <div className="col text-end">
               <Space>
-                <Button
-                  type="primary"
-                  onClick={() => setIsVisibleModalAddNew(true)}
-                >
-                  Add New
-                </Button>
+                {auth.role !== 3 && (
+                  <Button
+                    type="primary"
+                    onClick={() => setIsVisibleModalAddNew(true)}
+                  >
+                    Add New
+                  </Button>
+                )}
               </Space>
             </div>
           </div>

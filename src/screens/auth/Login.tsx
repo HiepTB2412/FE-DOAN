@@ -1,6 +1,6 @@
 import { Button, Card, Checkbox, Form, Input, Typography } from "antd";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { appInfo } from "../../constants/appInfos";
 import handleAPI from "../../apis/handleAPI";
 import { toast } from "react-toastify";
@@ -15,6 +15,7 @@ const Login = () => {
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (values: {
     username: string;
@@ -26,6 +27,7 @@ const Login = () => {
       const res: any = await handleAPI("/auth/login", values, "post");
       toast.success(res.message);
       res.data && dispatch(addAuth(res.data));
+      navigate("/user/detail");
     } catch (error: any) {
       toast.error(error.message);
     } finally {

@@ -15,6 +15,8 @@ import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { ColumnProps } from "antd/es/table";
 import handleAPI from "../apis/handleAPI";
 import ToogleOffer from "../modals/ToogleOffer";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -38,6 +40,7 @@ const options = [
 ];
 
 const Offer = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [offers, setOffers] = useState<any[]>([]);
@@ -130,37 +133,39 @@ const Offer = () => {
             />
           </Tooltip>
 
-          <Popconfirm
-            title={
-              <div>
-                <p>Please choose the result:</p>
-                <Select
-                  placeholder="Select result"
-                  onChange={handleChange}
-                  style={{ width: "100%" }}
-                >
-                  <Select.Option value="APPROVED">APPROVED</Select.Option>
-                  <Select.Option value="REJECTED">REJECTED</Select.Option>
-                  <Select.Option value="ACCEPTED">ACCEPTED</Select.Option>
-                  <Select.Option value="DECLINED">DECLINED</Select.Option>
-                </Select>
-              </div>
-            }
-            onConfirm={() => {
-              if (selectedStatusUpdate) {
-                handleResult(item, selectedStatusUpdate);
-              } else {
-                console.log("No result selected.");
+          {auth.role !== 4 && auth.role !== 2 && (
+            <Popconfirm
+              title={
+                <div>
+                  <p>Please choose the result:</p>
+                  <Select
+                    placeholder="Select result"
+                    onChange={handleChange}
+                    style={{ width: "100%" }}
+                  >
+                    <Select.Option value="APPROVED">APPROVED</Select.Option>
+                    <Select.Option value="REJECTED">REJECTED</Select.Option>
+                    <Select.Option value="ACCEPTED">ACCEPTED</Select.Option>
+                    <Select.Option value="DECLINED">DECLINED</Select.Option>
+                  </Select>
+                </div>
               }
-            }}
-            okText="Ok"
-            cancelText="Cancel"
-            icon={null}
-          >
-            <Tooltip title="Change status">
-              <EditOutlined style={{ color: "#52c41a", cursor: "pointer" }} />
-            </Tooltip>
-          </Popconfirm>
+              onConfirm={() => {
+                if (selectedStatusUpdate) {
+                  handleResult(item, selectedStatusUpdate);
+                } else {
+                  console.log("No result selected.");
+                }
+              }}
+              okText="Ok"
+              cancelText="Cancel"
+              icon={null}
+            >
+              <Tooltip title="Change status">
+                <EditOutlined style={{ color: "#52c41a", cursor: "pointer" }} />
+              </Tooltip>
+            </Popconfirm>
+          )}
         </div>
       ),
     },

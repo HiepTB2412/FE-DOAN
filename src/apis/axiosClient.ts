@@ -2,6 +2,7 @@ import axios from "axios";
 import queryString from "query-string";
 import { localDataNames } from "../constants/appInfos";
 import { syncLocal } from "../redux/reducers/authReducer";
+import { message } from "antd";
 
 export const baseURL = `https://imsbackend-production-3781.up.railway.app/api/v1`;
 
@@ -76,6 +77,8 @@ axiosClient.interceptors.response.use(
       } catch (error) {
         return Promise.reject(error);
       }
+    } else {
+      message.error(error.response.data.message);
     }
   }
 );

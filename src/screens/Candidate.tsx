@@ -14,6 +14,8 @@ import { FaSearch } from "react-icons/fa";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
 import ToogleCandidate from "../modals/ToogleCandidate";
+import { authSeletor, AuthState } from "../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -79,6 +81,7 @@ const options = [
 ];
 
 const Candidate = () => {
+  const auth: AuthState = useSelector(authSeletor);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>("");
@@ -219,12 +222,14 @@ const Candidate = () => {
             </div>
             <div className="col text-end">
               <Space>
-                <Button
-                  type="primary"
-                  onClick={() => setIsVisibleModalAddNew(true)}
-                >
-                  Add New
-                </Button>
+                {auth.role !== 3 && (
+                  <Button
+                    type="primary"
+                    onClick={() => setIsVisibleModalAddNew(true)}
+                  >
+                    Add New
+                  </Button>
+                )}
               </Space>
             </div>
           </div>
