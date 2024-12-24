@@ -22,7 +22,7 @@ const options = [
   { key: "", value: "", label: <span>All</span> },
   { key: "OPEN", value: "OPEN", label: <span>Open</span> },
   { key: "DRAFT", value: "DRAFT", label: <span>Draft</span> },
-  { key: "CLOSED", value: "CLOSED", label: <span>Closed</span> },
+  { key: "CLOSE", value: "CLOSE", label: <span>Close</span> },
 ];
 
 const Job = () => {
