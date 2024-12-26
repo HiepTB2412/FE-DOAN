@@ -11,7 +11,7 @@ import {
 import { ColumnProps } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
 import ToogleCandidate from "../modals/ToogleCandidate";
 import { authSeletor, AuthState } from "../redux/reducers/authReducer";
@@ -128,14 +128,15 @@ const Candidate = () => {
       title: "Action",
       render: (item: any) => (
         <div>
-          <EyeOutlined
-            onClick={() => {
-              setUpdateCandidateSelected(item);
-              setIsVisibleModalAddNew(true);
-            }}
-            style={{ marginRight: 8, color: "#1890ff", cursor: "pointer" }}
-          />
-          <EditOutlined style={{ color: "#52c41a", cursor: "pointer" }} />
+          {auth.role !== 3 && (
+            <EyeOutlined
+              onClick={() => {
+                setUpdateCandidateSelected(item);
+                setIsVisibleModalAddNew(true);
+              }}
+              style={{ marginRight: 8, color: "#1890ff", cursor: "pointer" }}
+            />
+          )}
         </div>
       ),
     },
