@@ -248,14 +248,29 @@ const ToogleOffer = (props: Props) => {
       onClose={handleClose}
       onCancel={handleClose}
       onOk={() => form.submit()}
-      okButtonProps={{ loading: isLoading }}
+      okButtonProps={{
+        loading: isLoading,
+        disabled:
+          offer &&
+          (offer.status === "REJECTED" ||
+            offer.status === "ACCEPTED" ||
+            offer.status === "DECLINED" ||
+            offer.status === "CANCELLED"),
+      }}
       title={offer ? "Update" : "Add Offer"}
       okText={offer ? "Update" : "Add Offer"}
       cancelText="Cancel"
       width={800}
     >
       <Form
-        disabled={isLoading}
+        disabled={
+          isLoading ||
+          (offer &&
+            (offer.status === "REJECTED" ||
+              offer.status === "ACCEPTED" ||
+              offer.status === "DECLINED" ||
+              offer.status === "CANCELLED"))
+        }
         onFinish={offer ? updateOffer : addNewOffer}
         layout="horizontal"
         form={form}
@@ -362,10 +377,7 @@ const ToogleOffer = (props: Props) => {
           </Col>
 
           <Col span={12}>
-            <Form.Item
-              label="Note"
-              name="note"
-            >
+            <Form.Item label="Note" name="note">
               <Input.TextArea
                 placeholder="Type a note"
                 allowClear

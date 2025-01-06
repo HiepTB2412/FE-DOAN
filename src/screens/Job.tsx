@@ -2,13 +2,14 @@ import {
   Button,
   Input,
   message,
+  Pagination,
   Select,
   Space,
   Table,
   Tooltip,
   Typography,
 } from "antd";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { ColumnProps } from "antd/es/table";
@@ -17,6 +18,7 @@ import ToogleJob from "../modals/ToogleJob";
 import { Link } from "react-router-dom";
 import { authSeletor, AuthState } from "../redux/reducers/authReducer";
 import { useSelector } from "react-redux";
+import ToogleAddFileJob from "../modals/ToogleAddFileJob";
 
 const { Title } = Typography;
 
@@ -31,26 +33,35 @@ const Job = () => {
   const auth: AuthState = useSelector(authSeletor);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
+  const [isVisibleModalAddNewFile, setIsVisibleModalAddNewFile] =
+    useState(false);
   const [jobs, setJobs] = useState<any[]>([]);
-  const [allJobs, setAllJobs] = useState<any[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
     undefined
   );
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const getJob = async () => {
-    const api = `/jobs/getAll`;
+  const getJob = async (page: number) => {
+    let api = `/jobs?page=${page}`;
+    if (searchText) {
+      api += `&keyword=${searchText}`;
+    }
+    if (selectedStatus) {
+      api += `&status=${selectedStatus}`;
+    }
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
 
       if (res.data) {
-        const jobsWithKey = res.data.map((job: any) => ({
+        const jobsWithKey = res.data.content.map((job: any) => ({
           ...job,
           key: job.id,
         }));
-        setAllJobs(jobsWithKey);
         setJobs(jobsWithKey);
+        setTotalElements(res.data.totalElements);
       }
     } catch (error: any) {
       message.error(error.message);
@@ -60,7 +71,7 @@ const Job = () => {
   };
 
   useEffect(() => {
-    getJob();
+    getJob(currentPage);
   }, []);
 
   const columns: ColumnProps<[]>[] = [
@@ -88,11 +99,13 @@ const Job = () => {
       key: "startDate",
       title: "Start Date",
       dataIndex: "startDate",
+      width: 120,
     },
     {
       key: "endDate",
       title: "End Date",
       dataIndex: "endDate",
+      width: 120,
     },
     {
       key: "levels",
@@ -129,30 +142,17 @@ const Job = () => {
     },
   ];
 
-  const filterInterviews = (search?: string, status?: string) => {
-    let filteredData = [...allJobs];
-
-    if (search) {
-      filteredData = filteredData.filter((item: any) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (status) {
-      filteredData = filteredData.filter((item: any) => item.status === status);
-    }
-
-    setJobs(filteredData);
-  };
-
   const handleChangeSearch = (value: string) => {
     setSearchText(value);
-    filterInterviews(value, selectedStatus); // Lọc dữ liệu sau khi thay đổi tìm kiếm
   };
 
   const handleChangeSelect = (value: string) => {
     setSelectedStatus(value);
-    filterInterviews(searchText, value); // Lọc dữ liệu sau khi thay đổi trạng thái
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setCurrentPage(page - 1);
+    getJob(page - 1); // Lấy dữ liệu trang mới
   };
 
   return (
@@ -162,6 +162,7 @@ const Job = () => {
         loading={isLoading}
         dataSource={jobs}
         columns={columns}
+        pagination={false}
         title={() => (
           <div className="row">
             <div className="col">
@@ -170,8 +171,9 @@ const Job = () => {
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search title..."
+                  placeholder="Search ..."
                   style={{ borderRadius: 100 }}
+                  allowClear
                   size="middle"
                   onChange={(e) => handleChangeSearch(e.target.value)}
                 />
@@ -182,7 +184,11 @@ const Job = () => {
                   options={options}
                 />
                 <Tooltip title="search">
-                  <Button shape="circle" icon={<FaSearch />} />
+                  <Button
+                    onClick={() => getJob(currentPage)}
+                    shape="circle"
+                    icon={<FaSearch />}
+                  />
                 </Tooltip>
               </Space>
             </div>
@@ -196,11 +202,35 @@ const Job = () => {
                     Add New
                   </Button>
                 )}
+                {auth.role !== 3 && (
+                  <Button
+                    type="primary"
+                    onClick={() => setIsVisibleModalAddNewFile(true)}
+                  >
+                    Add New File
+                  </Button>
+                )}
               </Space>
             </div>
           </div>
         )}
       />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        }}
+      >
+        <Pagination
+          style={{ textAlign: "center" }}
+          current={currentPage + 1} // Trang hiện tại
+          pageSize={10} // Số dòng mỗi trang
+          total={totalElements} // Tổng số dòng
+          onChange={handlePaginationChange} // Xử lý thay đổi trang
+        />
+      </div>
       <ToogleJob
         visible={isVisibleModalAddNew}
         onClose={() => {
@@ -208,6 +238,16 @@ const Job = () => {
         }}
         onAddNew={(val) => {
           setJobs([...jobs, val]);
+        }}
+      />
+
+      <ToogleAddFileJob
+        visible={isVisibleModalAddNewFile}
+        onClose={() => {
+          setIsVisibleModalAddNewFile(false);
+        }}
+        onAddNew={() => {
+          getJob(currentPage);
         }}
       />
     </div>

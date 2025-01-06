@@ -33,6 +33,7 @@ const ToogleAddInterview = (props: Props) => {
 
   // console.log("candidate", candidate);
   console.log("jobTitle", job);
+  console.log("candidate", candidate);
 
   useEffect(() => {
     if (candidate) {
@@ -40,7 +41,7 @@ const ToogleAddInterview = (props: Props) => {
         jobId: job.title, // Chuyển đổi khi bạn có jobId từ API
         candidateId: candidate.fullName, // Chuyển đổi nếu cần candidateId
         location: candidate.location,
-        recruiterId: candidate.recruiterName, // Chuyển đổi khi bạn có recruiterId từ API
+        recruiterId: candidate.recruiterId, // Chuyển đổi khi bạn có recruiterId từ API
         meetingId: candidate.meetingId,
         notes: candidate.notes,
         interviewerIds: candidate.interviewers,
@@ -251,10 +252,7 @@ const ToogleAddInterview = (props: Props) => {
           </Col>
 
           <Col span={12}>
-            <Form.Item
-              label="Note"
-              name="notes"
-            >
+            <Form.Item label="Note" name="notes">
               <Input.TextArea
                 placeholder="Type a note"
                 allowClear

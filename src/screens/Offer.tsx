@@ -2,6 +2,7 @@ import {
   Button,
   Input,
   message,
+  Pagination,
   Popconfirm,
   Select,
   Space,
@@ -44,26 +45,33 @@ const Offer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [offers, setOffers] = useState<any[]>([]);
-  const [allOffers, setAllOffers] = useState<any[]>([]);
   const [updateOfferSelected, setUpdateOfferSelected] = useState<any>();
   const [searchText, setSearchText] = useState<string>("");
   const [selectedStatusUpdate, setSelectedStatusUpdate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
     undefined
   );
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const getOffers = async () => {
-    const api = `/offers/getAll`;
+  const getOffers = async (page: number) => {
+    let api = `/offers?page=${page}`;
+    if (searchText) {
+      api += `&keyword=${searchText}`;
+    }
+    if (selectedStatus) {
+      api += `&status=${selectedStatus}`;
+    }
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
       if (res.data) {
-        const offersWithKey = res.data.map((offer: any) => ({
+        const offersWithKey = res.data.content.map((offer: any) => ({
           ...offer,
           key: offer.id,
         }));
-        setAllOffers(offersWithKey); // Lưu trữ dữ liệu gốc
         setOffers(offersWithKey); // Hiển thị dữ liệu gốc ban đầu
+        setTotalElements(res.data.totalElements);
       }
     } catch (error: any) {
       message.error(error.message);
@@ -84,7 +92,7 @@ const Offer = () => {
 
       const res: any = await handleAPI(api, { offerStatus }, "post");
       message.success(res.message);
-      await getOffers();
+      await getOffers(currentPage);
     } catch (error: any) {
       message.error(error.message);
     } finally {
@@ -171,34 +179,21 @@ const Offer = () => {
     },
   ];
 
-  const filterInterviews = (search?: string, status?: string) => {
-    let filteredData = [...allOffers];
-
-    if (search) {
-      filteredData = filteredData.filter((item: any) =>
-        item.candidateName.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (status) {
-      filteredData = filteredData.filter((item: any) => item.status === status);
-    }
-
-    setOffers(filteredData);
-  };
-
   const handleChangeSearch = (value: string) => {
     setSearchText(value);
-    filterInterviews(value, selectedStatus);
   };
 
   const handleChangeSelect = (value: string) => {
     setSelectedStatus(value);
-    filterInterviews(searchText, value);
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setCurrentPage(page - 1);
+    getOffers(page - 1); // Lấy dữ liệu trang mới
   };
 
   useEffect(() => {
-    getOffers();
+    getOffers(currentPage);
   }, []);
   return (
     <div>
@@ -207,6 +202,7 @@ const Offer = () => {
         loading={isLoading}
         dataSource={offers}
         columns={columns}
+        pagination={false}
         title={() => (
           <div className="row">
             <div className="col">
@@ -215,8 +211,9 @@ const Offer = () => {
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search Name..."
+                  placeholder="Search ..."
                   style={{ borderRadius: 100 }}
+                  allowClear
                   size="middle"
                   onChange={(e) => handleChangeSearch(e.target.value)}
                 />
@@ -227,7 +224,11 @@ const Offer = () => {
                   options={options}
                 />
                 <Tooltip title="search">
-                  <Button shape="circle" icon={<FaSearch />} />
+                  <Button
+                    onClick={() => getOffers(currentPage)}
+                    shape="circle"
+                    icon={<FaSearch />}
+                  />
                 </Tooltip>
               </Space>
             </div>
@@ -244,6 +245,22 @@ const Offer = () => {
           </div>
         )}
       />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        }}
+      >
+        <Pagination
+          style={{ textAlign: "center" }}
+          current={currentPage + 1} // Trang hiện tại
+          pageSize={10} // Số dòng mỗi trang
+          total={totalElements} // Tổng số dòng
+          onChange={handlePaginationChange} // Xử lý thay đổi trang
+        />
+      </div>
       <ToogleOffer
         visible={isVisibleModalAddNew}
         onClose={() => {
@@ -254,7 +271,7 @@ const Offer = () => {
           setOffers([...offers, val]);
         }}
         onUpdate={() => {
-          getOffers();
+          getOffers(currentPage);
         }}
         offer={updateOfferSelected}
       />

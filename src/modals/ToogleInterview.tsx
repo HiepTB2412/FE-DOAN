@@ -167,14 +167,17 @@ const ToogleInterview = (props: Props) => {
       onClose={handleClose}
       onCancel={handleClose}
       onOk={() => form.submit()}
-      okButtonProps={{ loading: isLoading }}
+      okButtonProps={{
+        loading: isLoading,
+        disabled: interview && interview.status === "CANCELLED",
+      }}
       title={"Update"}
       okText={"Update"}
       cancelText="Cancel"
       width={800}
     >
       <Form
-        disabled={isLoading}
+        disabled={isLoading || (interview && interview.status === "CANCELLED")}
         onFinish={updateInterview}
         layout="horizontal"
         form={form}
@@ -297,10 +300,7 @@ const ToogleInterview = (props: Props) => {
           </Col>
 
           <Col span={12}>
-            <Form.Item
-              label="Note"
-              name="notes"
-            >
+            <Form.Item label="Note" name="notes">
               <Input.TextArea
                 placeholder="Type a note"
                 allowClear

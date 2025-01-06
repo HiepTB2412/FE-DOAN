@@ -2,6 +2,7 @@ import {
   Button,
   Input,
   message,
+  Pagination,
   Select,
   Space,
   Table,
@@ -89,8 +90,9 @@ const Candidate = () => {
     undefined
   );
   const [candidates, setCandidates] = useState<any[]>([]);
-  const [allCandidates, setAllCandidates] = useState<any[]>([]);
   const [updateCandidateSelected, setUpdateCandidateSelected] = useState<any>();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   const columns: ColumnProps<[]>[] = [
     {
@@ -142,18 +144,24 @@ const Candidate = () => {
     },
   ];
 
-  const getCandidates = async () => {
-    const api = `/candidates/getAll`;
+  const getCandidates = async (page: number) => {
+    let api = `/candidates/all?page=${page}`;
+    if (searchText) {
+      api += `&keyword=${searchText}`;
+    }
+    if (selectedStatus) {
+      api += `&status=${selectedStatus}`;
+    }
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
       if (res.data) {
-        const candidatesWithKey = res.data.map((candidate: any) => ({
+        const candidatesWithKey = res.data.data.map((candidate: any) => ({
           ...candidate,
           key: candidate.id,
         }));
-        setAllCandidates(candidatesWithKey); // Lưu trữ dữ liệu gốc
         setCandidates(candidatesWithKey); // Hiển thị dữ liệu gốc ban đầu
+        setTotalElements(res.data.totalElements);
       }
     } catch (error: any) {
       message.error(error.message);
@@ -162,40 +170,28 @@ const Candidate = () => {
     }
   };
 
-  const filterInterviews = (search?: string, status?: string) => {
-    let filteredData = [...allCandidates];
-
-    if (search) {
-      filteredData = filteredData.filter((item: any) =>
-        item.fullName.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (status) {
-      filteredData = filteredData.filter((item: any) => item.status === status);
-    }
-
-    setCandidates(filteredData);
-  };
-
   const handleChangeSearch = (value: string) => {
     setSearchText(value);
-    filterInterviews(value, selectedStatus); // Lọc dữ liệu sau khi thay đổi tìm kiếm
   };
 
   const handleChangeSelect = (value: string) => {
     setSelectedStatus(value);
-    filterInterviews(searchText, value); // Lọc dữ liệu sau khi thay đổi trạng thái
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setCurrentPage(page - 1);
+    getCandidates(page - 1); // Lấy dữ liệu trang mới
   };
 
   useEffect(() => {
-    getCandidates();
+    getCandidates(currentPage);
   }, []);
   return (
     <div>
       <Table
         dataSource={candidates}
         columns={columns}
+        pagination={false}
         loading={isLoading}
         title={() => (
           <div className="row">
@@ -205,8 +201,9 @@ const Candidate = () => {
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search title..."
+                  placeholder="Search ..."
                   style={{ borderRadius: 100 }}
+                  allowClear
                   size="middle"
                   onChange={(e) => handleChangeSearch(e.target.value)}
                 />
@@ -217,7 +214,11 @@ const Candidate = () => {
                   options={options}
                 />
                 <Tooltip title="search">
-                  <Button shape="circle" icon={<FaSearch />} />
+                  <Button
+                    onClick={() => getCandidates(currentPage)}
+                    shape="circle"
+                    icon={<FaSearch />}
+                  />
                 </Tooltip>
               </Space>
             </div>
@@ -236,6 +237,22 @@ const Candidate = () => {
           </div>
         )}
       />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        }}
+      >
+        <Pagination
+          style={{ textAlign: "center" }}
+          current={currentPage + 1} // Trang hiện tại
+          pageSize={10} // Số dòng mỗi trang
+          total={totalElements} // Tổng số dòng
+          onChange={handlePaginationChange} // Xử lý thay đổi trang
+        />
+      </div>
       <ToogleCandidate
         visible={isVisibleModalAddNew}
         onClose={() => {
@@ -246,7 +263,7 @@ const Candidate = () => {
           setCandidates([...candidates, val]);
         }}
         onUpdate={() => {
-          getCandidates();
+          getCandidates(currentPage);
         }}
         candidate={updateCandidateSelected}
       />
