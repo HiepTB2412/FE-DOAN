@@ -166,7 +166,9 @@ const JobDetail = () => {
       key: "action",
       title: "Action",
       render: (item: any) =>
-        item.status === "OPEN" ? (
+        item.status === "OPEN" &&
+        jobDetail.status === "OPEN" &&
+        auth.role !== 3 ? (
           <div>
             <Tooltip title={"Add Interview"}>
               <EditOutlined
@@ -277,6 +279,7 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter title" }]}
                 >
                   <Input
+                    disabled={auth.role === 3 ? true : false}
                     placeholder="Type a title"
                     allowClear
                     style={{ width: "100%" }}
@@ -290,7 +293,11 @@ const JobDetail = () => {
                   name="skills"
                   rules={[{ required: true, message: "Please enter skills" }]}
                 >
-                  <Select mode="multiple" options={optionsSkills} />
+                  <Select
+                    disabled={auth.role === 3 ? true : false}
+                    mode="multiple"
+                    options={optionsSkills}
+                  />
                 </Form.Item>
               </Col>
 
@@ -300,7 +307,7 @@ const JobDetail = () => {
                   name="rangeDate"
                   rules={[{ required: true, message: "Please enter date" }]}
                 >
-                  <RangePicker />
+                  <RangePicker disabled={auth.role === 3 ? true : false} />
                 </Form.Item>
               </Col>
 
@@ -311,6 +318,7 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter salary" }]}
                 >
                   <Slider
+                    disabled={auth.role === 3 ? true : false}
                     range={{ draggableTrack: true }}
                     defaultValue={[0, 20]}
                     min={0}
@@ -327,7 +335,11 @@ const JobDetail = () => {
                     { required: true, message: "Please select benefits" },
                   ]}
                 >
-                  <Select mode="multiple" options={optionsBenefits} />
+                  <Select
+                    disabled={auth.role === 3 ? true : false}
+                    mode="multiple"
+                    options={optionsBenefits}
+                  />
                 </Form.Item>
               </Col>
 
@@ -337,7 +349,11 @@ const JobDetail = () => {
                   name="levels"
                   rules={[{ required: true, message: "Please enter levels" }]}
                 >
-                  <Select mode="multiple" options={optionsLevels} />
+                  <Select
+                    disabled={auth.role === 3 ? true : false}
+                    mode="multiple"
+                    options={optionsLevels}
+                  />
                 </Form.Item>
               </Col>
 
@@ -353,6 +369,7 @@ const JobDetail = () => {
                   ]}
                 >
                   <Input
+                    disabled={auth.role === 3 ? true : false}
                     placeholder="Type a working address"
                     allowClear
                     style={{ width: "100%" }}
@@ -369,6 +386,7 @@ const JobDetail = () => {
                   ]}
                 >
                   <Input.TextArea
+                    disabled={auth.role === 3 ? true : false}
                     placeholder="Type a description"
                     allowClear
                     style={{ width: "100%", minHeight: "80px" }}

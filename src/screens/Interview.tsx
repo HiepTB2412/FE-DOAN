@@ -2,6 +2,7 @@ import {
   Button,
   Input,
   message,
+  Pagination,
   Popconfirm,
   Select,
   Space,
@@ -26,19 +27,20 @@ const Interview = () => {
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [updateInterviewSelected, setUpdateInterviewSelected] = useState<any>();
   const [interviews, setInterviews] = useState<any[]>([]);
-  const [allInterviews, setAllInterviews] = useState<any[]>([]); // Dữ liệu gốc
   const [searchText, setSearchText] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
     undefined
   );
   const [selectedResult, setSelectedResult] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   const handleCancel = async (item: any) => {
     const api = `/interviews/cancel/${item.id}`;
     try {
       const res: any = await handleAPI(api, [], "put");
       message.success(res);
-      await getInterviews();
+      await getInterviews(currentPage);
     } catch (error: any) {
       message.error(error.message);
     }
@@ -50,11 +52,11 @@ const Interview = () => {
     try {
       const res: any = await handleAPI(api, { result }, "post");
       message.success(res.message);
-      await getInterviews();
+      await getInterviews(currentPage);
     } catch (error: any) {
       message.error(error.message);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
@@ -200,18 +202,24 @@ const Interview = () => {
     },
   ];
 
-  const getInterviews = async () => {
-    const api = `/interviews/getAll`;
+  const getInterviews = async (page: number) => {
+    let api = `/interviews?page=${page}`;
+    if (searchText) {
+      api += `&keyword=${searchText}`;
+    }
+    if (selectedStatus) {
+      api += `&status=${selectedStatus}`;
+    }
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
       if (res.data) {
-        const interviewsWithKey = res.data.map((interview: any) => ({
+        const interviewsWithKey = res.data.content.map((interview: any) => ({
           ...interview,
           key: interview.id,
         }));
-        setAllInterviews(interviewsWithKey); // Lưu trữ dữ liệu gốc
         setInterviews(interviewsWithKey); // Hiển thị dữ liệu gốc ban đầu
+        setTotalElements(res.data.totalElements);
       }
     } catch (error: any) {
       message.error(error.message);
@@ -220,34 +228,21 @@ const Interview = () => {
     }
   };
 
-  const filterInterviews = (search?: string, status?: string) => {
-    let filteredData = [...allInterviews];
-
-    if (search) {
-      filteredData = filteredData.filter((item: any) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (status) {
-      filteredData = filteredData.filter((item: any) => item.status === status);
-    }
-
-    setInterviews(filteredData);
-  };
-
   const handleChangeSearch = (value: string) => {
     setSearchText(value);
-    filterInterviews(value, selectedStatus); // Lọc dữ liệu sau khi thay đổi tìm kiếm
   };
 
   const handleChangeSelect = (value: string) => {
     setSelectedStatus(value);
-    filterInterviews(searchText, value); // Lọc dữ liệu sau khi thay đổi trạng thái
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setCurrentPage(page - 1);
+    getInterviews(page - 1); // Lấy dữ liệu trang mới
   };
 
   useEffect(() => {
-    getInterviews(); // Gọi API chỉ một lần khi component mount
+    getInterviews(currentPage); // Gọi API chỉ một lần khi component mount
   }, []); // Chạy khi component được load lần đầu tiên
 
   return (
@@ -256,6 +251,7 @@ const Interview = () => {
         dataSource={interviews}
         columns={columns}
         loading={isLoading}
+        pagination={false}
         title={() => (
           <div className="row">
             <div className="col-5">
@@ -264,8 +260,9 @@ const Interview = () => {
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search title..."
+                  placeholder="Search ..."
                   style={{ borderRadius: 100 }}
+                  allowClear
                   size="middle"
                   onChange={(e) => handleChangeSearch(e.target.value)}
                 />
@@ -276,13 +273,33 @@ const Interview = () => {
                   options={options}
                 />
                 <Tooltip title="search">
-                  <Button shape="circle" icon={<FaSearch />} />
+                  <Button
+                    onClick={() => getInterviews(currentPage)}
+                    shape="circle"
+                    icon={<FaSearch />}
+                  />
                 </Tooltip>
               </Space>
             </div>
           </div>
         )}
       />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        }}
+      >
+        <Pagination
+          style={{ textAlign: "center" }}
+          current={currentPage + 1} // Trang hiện tại
+          pageSize={10} // Số dòng mỗi trang
+          total={totalElements} // Tổng số dòng
+          onChange={handlePaginationChange} // Xử lý thay đổi trang
+        />
+      </div>
       <ToogleInterview
         visible={isVisibleModalAddNew}
         onClose={() => {
@@ -290,7 +307,7 @@ const Interview = () => {
           setIsVisibleModalAddNew(false);
         }}
         onUpdate={() => {
-          getInterviews();
+          getInterviews(currentPage);
         }}
         interview={updateInterviewSelected}
       />

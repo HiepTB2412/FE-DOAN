@@ -1,4 +1,12 @@
-import { Button, Input, Select, Space, Tooltip, Typography } from "antd";
+import {
+  Button,
+  Input,
+  Pagination,
+  Select,
+  Space,
+  Tooltip,
+  Typography,
+} from "antd";
 import Table, { ColumnProps } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -16,14 +24,12 @@ interface Props {
   onUpdateUserLogin: () => void;
 }
 
-const optionsDepartment = [
+const optionsRole = [
   { value: "", label: <span>All</span> },
-  { value: "IT", label: <span>IT</span> },
-  { value: "HR", label: <span>HR</span> },
-  { value: "FINANCE", label: <span>FINANCE</span> },
-  { value: "COMMUNICATION", label: <span>COMMUNICATION</span> },
-  { value: "MARKETING", label: <span>MARKETING</span> },
-  { value: "ACCOUNTING", label: <span>ACCOUNTING</span> },
+  { value: "ADMIN", label: <span>Admin</span> },
+  { value: "RECRUITER", label: <span>Recruiter</span> },
+  { value: "INTERVIEWER", label: <span>Interviewer</span> },
+  { value: "MANAGER", label: <span>Manager</span> },
 ];
 
 const User = (props: Props) => {
@@ -31,13 +37,14 @@ const User = (props: Props) => {
   const auth: AuthState = useSelector(authSeletor);
   const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false);
   const [users, setUsers] = useState<UserModel[]>([]);
-  const [allUsers, setAllUsers] = useState<UserModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [updateUserSelected, setUpdateUserSelected] = useState<UserModel>();
   const [searchText, setSearchText] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(
     undefined
   );
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   const columns: ColumnProps<UserModel>[] = [
     {
@@ -84,56 +91,48 @@ const User = (props: Props) => {
   ];
 
   useEffect(() => {
-    getUsers();
+    getUsers(currentPage);
   }, []);
 
-  const filterInterviews = (search?: string, department?: string) => {
-    let filteredData = [...allUsers];
-
-    if (search) {
-      filteredData = filteredData.filter((item: any) =>
-        item.fullName.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (department) {
-      filteredData = filteredData.filter(
-        (item: any) => item.department === department
-      );
-    }
-
-    setUsers(filteredData);
-  };
   const handleChangeSearch = (value: string) => {
     setSearchText(value);
-    filterInterviews(value, selectedStatus);
   };
 
   const handleChangeSelect = (value: string) => {
     setSelectedStatus(value);
-    filterInterviews(searchText, value);
   };
 
-  const getUsers = async () => {
-    const api = `/users/all`;
+  const getUsers = async (page: number) => {
+    let api = `/users/all/paginate?page=${page}`;
+    if (searchText) {
+      api += `&keyword=${searchText}`;
+    }
+    if (selectedStatus) {
+      api += `&role=${selectedStatus}`;
+    }
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
 
       if (res.data) {
         // Thêm key cho mỗi phần tử
-        const usersWithKey = res.data.map((user: UserModel) => ({
+        const usersWithKey = res.data.data.map((user: UserModel) => ({
           ...user,
           key: user.id, // Giả sử mỗi user có thuộc tính id duy nhất
         }));
         setUsers(usersWithKey);
-        setAllUsers(usersWithKey);
+        setTotalElements(res.data.totalElements);
       }
     } catch (error: any) {
       toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setCurrentPage(page - 1);
+    getUsers(page - 1); // Lấy dữ liệu trang mới
   };
 
   return (
@@ -143,6 +142,7 @@ const User = (props: Props) => {
         loading={isLoading}
         dataSource={users}
         columns={columns}
+        pagination={false}
         title={() => (
           <div className="row">
             <div className="col">
@@ -151,19 +151,24 @@ const User = (props: Props) => {
             <div className="col">
               <Space>
                 <Input
-                  placeholder="Search Name..."
+                  placeholder="Search ..."
                   style={{ borderRadius: 100 }}
+                  allowClear
                   size="middle"
                   onChange={(e) => handleChangeSearch(e.target.value)}
                 />
                 <Select
-                  defaultValue="Department"
+                  defaultValue="Role"
                   style={{ width: 180 }}
                   onChange={handleChangeSelect}
-                  options={optionsDepartment}
+                  options={optionsRole}
                 />
                 <Tooltip title="search">
-                  <Button shape="circle" icon={<FaSearch />} />
+                  <Button
+                    onClick={() => getUsers(currentPage)}
+                    shape="circle"
+                    icon={<FaSearch />}
+                  />
                 </Tooltip>
               </Space>
             </div>
@@ -182,6 +187,22 @@ const User = (props: Props) => {
           </div>
         )}
       />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        }}
+      >
+        <Pagination
+          style={{ marginTop: "16px", textAlign: "center" }}
+          current={currentPage + 1} // Trang hiện tại
+          pageSize={10} // Số dòng mỗi trang
+          total={totalElements} // Tổng số dòng
+          onChange={handlePaginationChange} // Xử lý thay đổi trang
+        />
+      </div>
       <ToogleUser
         visible={isVisibleModalAddNew}
         onClose={() => {
@@ -192,7 +213,7 @@ const User = (props: Props) => {
           setUsers([...users, val]);
         }}
         onUpdate={() => {
-          getUsers();
+          getUsers(currentPage);
           onUpdateUserLogin();
         }}
         user={updateUserSelected}

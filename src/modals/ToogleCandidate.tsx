@@ -295,8 +295,6 @@ const ToogleCandidate = (props: Props) => {
     onClose();
   };
 
-  // console.log("candidate", candidate);
-
   useEffect(() => {
     if (candidate) {
       const formattedData = {
@@ -333,7 +331,8 @@ const ToogleCandidate = (props: Props) => {
       onOk={() => form.submit()}
       okButtonProps={{
         loading: isLoading,
-        disabled: auth.role === 3, // Disable button if auth.role === 3
+        disabled:
+          auth.role === 3 || (candidate && candidate.status === "BANNED"), // Disable button if auth.role === 3
       }}
       title={candidate ? "Update Candidate" : "Add Candidate"}
       okText={candidate ? "Update" : "Add Candidate"}
@@ -341,7 +340,7 @@ const ToogleCandidate = (props: Props) => {
       width={800}
     >
       <Form
-        disabled={isLoading}
+        disabled={isLoading || (candidate && candidate.status === "BANNED")}
         onFinish={(values) => {
           candidate ? updateCandidate(values) : addCandidate(values);
         }}
