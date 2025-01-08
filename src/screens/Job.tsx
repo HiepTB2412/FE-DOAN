@@ -207,7 +207,7 @@ const Job = () => {
                     type="primary"
                     onClick={() => setIsVisibleModalAddNewFile(true)}
                   >
-                    Add New File
+                    Add From File
                   </Button>
                 )}
               </Space>

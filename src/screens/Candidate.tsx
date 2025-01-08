@@ -12,11 +12,12 @@ import {
 import { ColumnProps } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { EyeOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
 import ToogleCandidate from "../modals/ToogleCandidate";
 import { authSeletor, AuthState } from "../redux/reducers/authReducer";
 import { useSelector } from "react-redux";
+import { PiNewspaperClippingThin } from "react-icons/pi";
 
 const { Title } = Typography;
 
@@ -96,6 +97,11 @@ const Candidate = () => {
 
   const columns: ColumnProps<[]>[] = [
     {
+      key: "CV",
+      title: "CV",
+      dataIndex: "CV",
+    },
+    {
       key: "fullName",
       title: "Name",
       dataIndex: "fullName",
@@ -131,7 +137,7 @@ const Candidate = () => {
       render: (item: any) => (
         <div>
           {auth.role !== 3 && (
-            <EyeOutlined
+            <EyeOutlined title="View detail information"
               onClick={() => {
                 setUpdateCandidateSelected(item);
                 setIsVisibleModalAddNew(true);
@@ -139,6 +145,33 @@ const Candidate = () => {
               style={{ marginRight: 8, color: "#1890ff", cursor: "pointer" }}
             />
           )}
+          <Tooltip title="View CV">
+            <PiNewspaperClippingThin
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  // Gọi API để lấy link
+                  let api = item.cvUrl;
+                  const data = await handleAPI(api);
+                  
+                  console.log(data.link);
+                  // Kiểm tra nếu có link
+                  if (data.link) {
+                    // Mở link trong tab mới
+                    window.open(data.link, "_blank");
+                  } else {
+                    // Xử lý nếu không có link
+                    console.error("No link found in API response");
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch CV link", error);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              style={{ color: "#faad14", cursor: "pointer" }}
+            />
+          </Tooltip>
         </div>
       ),
     },

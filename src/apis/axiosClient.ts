@@ -4,7 +4,7 @@ import { localDataNames } from "../constants/appInfos";
 import { syncLocal } from "../redux/reducers/authReducer";
 import { message } from "antd";
 
-export const baseURL = `https://imsbackend-production-3781.up.railway.app/api/v1`;
+export const baseURL = `https://ims-production-5f40.up.railway.app/api/v1`;
 
 const axiosClient = axios.create({
   baseURL: baseURL,
@@ -63,7 +63,7 @@ axiosClient.interceptors.response.use(
       try {
         const refreshToken = getrefreshToken();
         const result = await axios.post(
-          `https://imsbackend-production-3781.up.railway.app/api/v1/auth/refresh`,
+          `https://ims-production-5f40.up.railway.app/api/v1/auth/refresh`,
           {
             refreshToken: refreshToken,
           }
