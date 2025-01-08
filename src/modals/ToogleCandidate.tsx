@@ -139,6 +139,9 @@ const ToogleCandidate = (props: Props) => {
               },
             }
           );
+          
+          console.log("response", response.data.data.dateOfBirth);
+          
 
           const formattedData = {
             fullName: response.data.data.name?.raw || "",
@@ -147,6 +150,7 @@ const ToogleCandidate = (props: Props) => {
               response.data.data.phoneNumbers?.[0]
             ),
             address: response.data.data.location?.formatted || "",
+            dob: dayjs(response.data.data.dateOfBirth) || "",
           };
 
           // Lọc danh sách kỹ năng từ API

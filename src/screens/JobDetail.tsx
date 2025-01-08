@@ -56,7 +56,7 @@ const options = [
   { key: "", value: "", label: <span>All</span> },
   { key: "OPEN", value: "OPEN", label: <span>Open</span> },
   { key: "DRAFT", value: "DRAFT", label: <span>Draft</span> },
-  { key: "CLOSED", value: "CLOSED", label: <span>Closed</span> },
+  { key: "CLOSE", value: "CLOSE", label: <span>Close</span> },
 ];
 
 const JobDetail = () => {
@@ -264,7 +264,7 @@ const JobDetail = () => {
         >
           {" "}
           <Form
-            disabled={isLoading}
+            disabled={isLoading || (jobDetail && jobDetail?.status && jobDetail.status === "CLOSE")}
             onFinish={updateJob}
             layout="horizontal"
             form={form}
@@ -409,7 +409,7 @@ const JobDetail = () => {
             }}
           >
             {auth.role !== 3 && (
-              <Button onClick={() => form.submit()} type="primary">
+              <Button disabled={jobDetail && jobDetail.status === "CLOSE"} onClick={() => form.submit()} type="primary">
                 Update
               </Button>
             )}
