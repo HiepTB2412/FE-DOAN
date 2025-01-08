@@ -148,21 +148,8 @@ const Interview = () => {
               style={{ marginRight: 8, color: "#1890ff", cursor: "pointer" }}
             />
           </Tooltip>
-          {item.status === "INVITED" && auth.role !== 4 && (
-            <Popconfirm
-              title={`You are canceling: ${item.title}`}
-              onConfirm={() => handleCancel(item)}
-              okText="Ok"
-              cancelText="Cancel"
-            >
-              <Tooltip title="Cancel">
-                <DeleteOutlined
-                  style={{ color: "#52c41a", cursor: "pointer" }}
-                />
-              </Tooltip>
-            </Popconfirm>
-          )}
-          {item.status === "INTERVIEWED" && (
+
+          {item.status === "INVITED" && (
             <Popconfirm
               title={
                 <div>
@@ -194,6 +181,25 @@ const Interview = () => {
             >
               <Tooltip title="update result">
                 <EditOutlined style={{ color: "#faad14", cursor: "pointer" }} />
+              </Tooltip>
+            </Popconfirm>
+          )}
+
+          {item.status === "INVITED" && auth.role !== 4 && (
+            <Popconfirm
+              title={`You are canceling: ${item.title}`}
+              onConfirm={() => handleCancel(item)}
+              okText="Ok"
+              cancelText="Cancel"
+            >
+              <Tooltip title="Cancel">
+                <DeleteOutlined
+                  style={{
+                    color: "#52c41a",
+                    cursor: "pointer",
+                    marginLeft: "8px",
+                  }}
+                />
               </Tooltip>
             </Popconfirm>
           )}
