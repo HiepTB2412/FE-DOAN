@@ -1,5 +1,4 @@
 import {
-  Button,
   Col,
   DatePicker,
   Form,
@@ -332,8 +331,7 @@ const ToogleCandidate = (props: Props) => {
       onOk={() => form.submit()}
       okButtonProps={{
         loading: isLoading,
-        disabled:
-          auth.role === 3 || (candidate && candidate.status === "BANNED"), // Disable button if auth.role === 3
+        disabled: auth.role === 3 || (candidate && candidate.status !== "OPEN"), // Disable button if auth.role === 3
       }}
       title={candidate ? "Update Candidate" : "Add Candidate"}
       okText={candidate ? "Update" : "Add Candidate"}
@@ -341,7 +339,7 @@ const ToogleCandidate = (props: Props) => {
       width={800}
     >
       <Form
-        disabled={isLoading || (candidate && candidate.status === "BANNED")}
+        disabled={isLoading}
         onFinish={(values) => {
           candidate ? updateCandidate(values) : addCandidate(values);
         }}
@@ -373,7 +371,10 @@ const ToogleCandidate = (props: Props) => {
               rules={[{ required: true, message: "Please enter Fullname" }]}
             >
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type a name"
                 allowClear
                 style={{ width: "100%" }}
@@ -396,7 +397,10 @@ const ToogleCandidate = (props: Props) => {
               ]}
             >
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type an email"
                 allowClear
                 type="email"
@@ -412,7 +416,10 @@ const ToogleCandidate = (props: Props) => {
               rules={[{ required: true, message: "Please enter Dob" }]}
             >
               <DatePicker
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -425,7 +432,10 @@ const ToogleCandidate = (props: Props) => {
               rules={[{ required: true, message: "Please enter Address" }]}
             >
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type an address"
                 allowClear
                 style={{ width: "100%" }}
@@ -450,7 +460,10 @@ const ToogleCandidate = (props: Props) => {
               ]}
             >
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type a valid phone number"
                 allowClear
                 style={{ width: "100%" }}
@@ -464,7 +477,13 @@ const ToogleCandidate = (props: Props) => {
               name="gender"
               rules={[{ required: true, message: "Please select Gender" }]}
             >
-              <Select disabled={!(cv || candidate)} options={optionsGender} />
+              <Select
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
+                options={optionsGender}
+              />
             </Form.Item>
           </Col>
 
@@ -474,7 +493,13 @@ const ToogleCandidate = (props: Props) => {
               name="position"
               rules={[{ required: true, message: "Please select position" }]}
             >
-              <Select disabled={!(cv || candidate)} options={optionsPosition} />
+              <Select
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
+                options={optionsPosition}
+              />
             </Form.Item>
           </Col>
 
@@ -487,7 +512,10 @@ const ToogleCandidate = (props: Props) => {
               ]}
             >
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type a yearOfExperience"
                 allowClear
                 style={{ width: "100%" }}
@@ -502,7 +530,10 @@ const ToogleCandidate = (props: Props) => {
               rules={[{ required: true, message: "Please select recruiter" }]}
             >
               <Select
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 options={recruiter.map((user: UserModel) => ({
                   value: user.id,
                   label: user.fullName,
@@ -520,7 +551,10 @@ const ToogleCandidate = (props: Props) => {
               ]}
             >
               <Select
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 options={optionsHighestLevel}
               />
             </Form.Item>
@@ -533,7 +567,10 @@ const ToogleCandidate = (props: Props) => {
               rules={[{ required: true, message: "Please select skills" }]}
             >
               <Select
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 mode="multiple"
                 style={{ width: "100%" }}
                 placeholder="Select skills"
@@ -552,7 +589,10 @@ const ToogleCandidate = (props: Props) => {
                 rules={[{ required: true, message: "Please select job" }]}
               >
                 <Select
-                  disabled={!(cv || candidate)}
+                  disabled={
+                    !(cv || candidate) ||
+                    (candidate && candidate.status !== "OPEN")
+                  }
                   options={jobs.map((job: any) => ({
                     value: job.title,
                     label: job.title,
@@ -565,7 +605,10 @@ const ToogleCandidate = (props: Props) => {
           <Col span={12}>
             <Form.Item label="Note" name="note">
               <Input
-                disabled={!(cv || candidate)}
+                disabled={
+                  !(cv || candidate) ||
+                  (candidate && candidate.status !== "OPEN")
+                }
                 placeholder="Type a note"
                 allowClear
                 style={{ width: "100%" }}
@@ -574,8 +617,6 @@ const ToogleCandidate = (props: Props) => {
           </Col>
         </Row>
       </Form>
-
-  
     </Modal>
   );
 };

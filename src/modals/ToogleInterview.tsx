@@ -169,7 +169,10 @@ const ToogleInterview = (props: Props) => {
       onOk={() => form.submit()}
       okButtonProps={{
         loading: isLoading,
-        disabled: interview && interview.status === "CANCELLED",
+        disabled:
+          interview &&
+          (interview.status === "CANCELLED" ||
+            interview.status === "INTERVIEWED"),
       }}
       title={"Update"}
       okText={"Update"}
@@ -177,7 +180,12 @@ const ToogleInterview = (props: Props) => {
       width={800}
     >
       <Form
-        disabled={isLoading || (interview && interview.status === "CANCELLED")}
+        disabled={
+          isLoading ||
+          (interview &&
+            (interview.status === "CANCELLED" ||
+              interview.status === "INTERVIEWED"))
+        }
         onFinish={updateInterview}
         layout="horizontal"
         form={form}

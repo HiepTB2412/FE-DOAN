@@ -56,7 +56,7 @@ const options = [
   { key: "", value: "", label: <span>All</span> },
   { key: "OPEN", value: "OPEN", label: <span>Open</span> },
   { key: "DRAFT", value: "DRAFT", label: <span>Draft</span> },
-  { key: "CLOSED", value: "CLOSED", label: <span>Closed</span> },
+  { key: "CLOSE", value: "CLOSE", label: <span>Close</span> },
 ];
 
 const JobDetail = () => {
@@ -279,7 +279,11 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter title" }]}
                 >
                   <Input
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     placeholder="Type a title"
                     allowClear
                     style={{ width: "100%" }}
@@ -294,7 +298,11 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter skills" }]}
                 >
                   <Select
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     mode="multiple"
                     options={optionsSkills}
                   />
@@ -307,7 +315,13 @@ const JobDetail = () => {
                   name="rangeDate"
                   rules={[{ required: true, message: "Please enter date" }]}
                 >
-                  <RangePicker disabled={auth.role === 3 ? true : false} />
+                  <RangePicker
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
+                  />
                 </Form.Item>
               </Col>
 
@@ -318,7 +332,11 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter salary" }]}
                 >
                   <Slider
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     range={{ draggableTrack: true }}
                     defaultValue={[0, 20]}
                     min={0}
@@ -336,7 +354,11 @@ const JobDetail = () => {
                   ]}
                 >
                   <Select
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     mode="multiple"
                     options={optionsBenefits}
                   />
@@ -350,7 +372,11 @@ const JobDetail = () => {
                   rules={[{ required: true, message: "Please enter levels" }]}
                 >
                   <Select
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     mode="multiple"
                     options={optionsLevels}
                   />
@@ -369,7 +395,11 @@ const JobDetail = () => {
                   ]}
                 >
                   <Input
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     placeholder="Type a working address"
                     allowClear
                     style={{ width: "100%" }}
@@ -386,7 +416,11 @@ const JobDetail = () => {
                   ]}
                 >
                   <Input.TextArea
-                    disabled={auth.role === 3 ? true : false}
+                    disabled={
+                      auth.role === 3
+                        ? true
+                        : false || (jobDetail && jobDetail.status === "CLOSE")
+                    }
                     placeholder="Type a description"
                     allowClear
                     style={{ width: "100%", minHeight: "80px" }}
@@ -409,7 +443,11 @@ const JobDetail = () => {
             }}
           >
             {auth.role !== 3 && (
-              <Button onClick={() => form.submit()} type="primary">
+              <Button
+                disabled={jobDetail && jobDetail.status === "CLOSE"}
+                onClick={() => form.submit()}
+                type="primary"
+              >
                 Update
               </Button>
             )}
