@@ -92,7 +92,7 @@ const ToogleJob = (props: Props) => {
       onClose={handleClose}
       onCancel={handleClose}
       onOk={() => form.submit()}
-      okButtonProps={{ loading: isLoading }}
+      okButtonProps={{ loading: isLoading}}
       title={"Add Job"}
       okText={"Add Job"}
       cancelText="Cancel"
