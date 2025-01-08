@@ -70,6 +70,8 @@ const Offer = () => {
           ...offer,
           key: offer.id,
         }));
+        console.log("offer", res.data);
+
         setOffers(offersWithKey); // Hiển thị dữ liệu gốc ban đầu
         setTotalElements(res.data.totalElements);
       }
@@ -155,6 +157,7 @@ const Offer = () => {
                     <Select.Option value="REJECTED">REJECTED</Select.Option>
                     <Select.Option value="ACCEPTED">ACCEPTED</Select.Option>
                     <Select.Option value="DECLINED">DECLINED</Select.Option>
+                    <Select.Option value="CANCELLED">CANCELLED</Select.Option>
                   </Select>
                 </div>
               }

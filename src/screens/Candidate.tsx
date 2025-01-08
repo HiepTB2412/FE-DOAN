@@ -12,7 +12,7 @@ import {
 import { ColumnProps } from "antd/es/table";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import handleAPI from "../apis/handleAPI";
 import ToogleCandidate from "../modals/ToogleCandidate";
 import { authSeletor, AuthState } from "../redux/reducers/authReducer";
@@ -137,7 +137,8 @@ const Candidate = () => {
       render: (item: any) => (
         <div>
           {auth.role !== 3 && (
-            <EyeOutlined title="View detail information"
+            <EyeOutlined
+              title="View detail information"
               onClick={() => {
                 setUpdateCandidateSelected(item);
                 setIsVisibleModalAddNew(true);
@@ -152,8 +153,8 @@ const Candidate = () => {
                 try {
                   // Gọi API để lấy link
                   let api = item.cvUrl;
-                  const data = await handleAPI(api);
-                  
+                  const data: any = await handleAPI(api);
+
                   console.log(data.link);
                   // Kiểm tra nếu có link
                   if (data.link) {
@@ -193,6 +194,8 @@ const Candidate = () => {
           ...candidate,
           key: candidate.id,
         }));
+        // console.log("candidate", res.data);
+
         setCandidates(candidatesWithKey); // Hiển thị dữ liệu gốc ban đầu
         setTotalElements(res.data.totalElements);
       }
