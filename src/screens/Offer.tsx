@@ -18,6 +18,7 @@ import handleAPI from "../apis/handleAPI";
 import ToogleOffer from "../modals/ToogleOffer";
 import { authSeletor, AuthState } from "../redux/reducers/authReducer";
 import { useSelector } from "react-redux";
+import { IoIosSend } from "react-icons/io";
 
 const { Title } = Typography;
 
@@ -102,6 +103,20 @@ const Offer = () => {
     }
   };
 
+  const handleSendEmail = async (item: any) => {
+    const api = `/offers/send/${item.id}`;
+    setIsLoading(true);
+    try {
+      const res: any = await handleAPI(api);
+      message.success(res.message);
+      await getOffers(currentPage);
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const columns: ColumnProps<[]>[] = [
     {
       key: "candidateName",
@@ -143,39 +158,69 @@ const Offer = () => {
             />
           </Tooltip>
 
-          {auth.role !== 4 && auth.role !== 2 && (
-            <Popconfirm
-              title={
-                <div>
-                  <p>Please choose the result:</p>
-                  <Select
-                    placeholder="Select result"
-                    onChange={handleChange}
-                    style={{ width: "100%" }}
-                  >
-                    <Select.Option value="APPROVED">APPROVED</Select.Option>
-                    <Select.Option value="REJECTED">REJECTED</Select.Option>
-                    <Select.Option value="ACCEPTED">ACCEPTED</Select.Option>
-                    <Select.Option value="DECLINED">DECLINED</Select.Option>
-                    <Select.Option value="CANCELLED">CANCELLED</Select.Option>
-                  </Select>
-                </div>
-              }
-              onConfirm={() => {
-                if (selectedStatusUpdate) {
-                  handleResult(item, selectedStatusUpdate);
-                } else {
-                  console.log("No result selected.");
+          {auth.role !== 4 &&
+            auth.role !== 2 &&
+            (item.status === "WAITING_APPROVAL" ||
+              item.status === "WAITING_RESPONSE") && (
+              <Popconfirm
+                title={
+                  <div>
+                    <p>Please choose the result:</p>
+                    <Select
+                      placeholder="Select result"
+                      onChange={handleChange}
+                      style={{ width: "100%" }}
+                    >
+                      {item.status === "WAITING_APPROVAL" && (
+                        <Select.Option value="APPROVED">APPROVED</Select.Option>
+                      )}
+                      {item.status === "WAITING_APPROVAL" && (
+                        <Select.Option value="REJECTED">REJECTED</Select.Option>
+                      )}
+                      {item.status === "WAITING_RESPONSE" && (
+                        <Select.Option value="ACCEPTED">ACCEPTED</Select.Option>
+                      )}
+                      {item.status === "WAITING_RESPONSE" && (
+                        <Select.Option value="DECLINED">DECLINED</Select.Option>
+                      )}
+                      {item.status === "WAITING_APPROVAL" && (
+                        <Select.Option value="CANCELLED">
+                          CANCELLED
+                        </Select.Option>
+                      )}
+                    </Select>
+                  </div>
                 }
-              }}
-              okText="Ok"
-              cancelText="Cancel"
-              icon={null}
-            >
-              <Tooltip title="Change status">
-                <EditOutlined style={{ color: "#52c41a", cursor: "pointer" }} />
-              </Tooltip>
-            </Popconfirm>
+                onConfirm={() => {
+                  if (selectedStatusUpdate) {
+                    handleResult(item, selectedStatusUpdate);
+                  } else {
+                    console.log("No result selected.");
+                  }
+                }}
+                okText="Ok"
+                cancelText="Cancel"
+                icon={null}
+              >
+                <Tooltip title="Change status">
+                  <EditOutlined
+                    style={{ color: "#52c41a", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            )}
+
+          {item.status === "WAITING_APPROVAL" && (
+            <Tooltip title="Send Email">
+              <IoIosSend
+                onClick={() => handleSendEmail(item)}
+                style={{
+                  marginLeft: "5px",
+                  color: "#1110ff",
+                  cursor: "pointer",
+                }}
+              />
+            </Tooltip>
           )}
         </div>
       ),
